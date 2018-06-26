@@ -1,9 +1,14 @@
 import numpy as np
+from statistics import *
+from typecheck import ensure
 '''
 input: word frequency statistic
 output: sum_{shared word} |rank1(word)-rank2(word)|*weight(word)
 '''
 def weighted_rank_difference(d1,d2):
+	d1 = ensure(d1,'word_frequency')[1]
+	d2 = ensure(d2,'word_frequency')[1]
+
 	n1 = sum(d1.values())
 	n2 = sum(d2.values())
 
@@ -29,7 +34,7 @@ def weighted_rank_difference(d1,d2):
 
 	weight = dict()
 	Z = 0
-	for word in set(ordered_words1).intersection(set(ordered_words2)):
+	for word in set(d1).intersection(set(d2)):
 		weight[word] = - d1[word]/n1 * (np.log(d1[word])-np.log(n1)) - d2[word]/n2 * (np.log(d2[word])-np.log(n2))
 		Z += weight[word]
 	for word in weight:
@@ -43,6 +48,9 @@ ignores non-mutually-present words
 output: sum p log(p/q)
 '''
 def kl_divergence(d1,d2):
+	d1 = ensure(d1,'word_frequency')[1]
+	d2 = ensure(d2,'word_frequency')[1]
+
 	intersection = set(d1).intersection(set(d2))
 
 	n1 = sum(d1[x] for x in intersection)
@@ -54,7 +62,7 @@ def kl_divergence(d1,d2):
 
 
 '''
-input: word frequency statisitc, or set of words used, or 
+input: word frequency statisitc, or set of words used, or list of words
 output: |intersection|/|union|
 '''
 def vocab_overlap(d1,d2):

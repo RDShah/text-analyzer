@@ -1,36 +1,47 @@
-from reader import clean_read
-from statistics import *
+import numpy as np
+import matplotlib.pyplot as plt
 from distances import *
+
 
 fn1 = 'warandpeace1.txt'
 fn2 = 'warandpeace2.txt'
 fn3 = 'feynman.txt'
 
-# fn1 = 'ex1.txt'
-# fn2 = 'ex2.txt'
-# fn3 = 'ex3.txt'
+strings = [-1]*3
 
-string1 = clean_read('test_documents/'+fn1).split(' ')
-string1_again = clean_read('test_documents/'+fn1).split(' ')
-string2 = clean_read('test_documents/'+fn2).split(' ')
-string3 = clean_read('test_documents/'+fn3).split(' ')
+strings[0] = 'test_documents/'+fn1
+strings[1] = 'test_documents/'+fn2
+strings[2] = 'test_documents/'+fn3
 
-# print('stirng',string1==string1_again,string1[:10])
+def pairwise_distances(files):
+	half = np.zeros((len(files),len(files)))
+	for i in range(1,len(files)):
+		for j in range(i):
+			half[i][j] = weighted_rank_difference(files[i],files[j])
+	return half+half.T
 
-#print(string2[:10])
-#quit()
+def mds(D):
+	n = D.shape[0]
+	H = np.eye(n)-np.ones((n,n))/n
+	B = -0.5*H.dot(np.multiply(D,D)).dot(H)
+	lambdas,v = np.linalg.eig(B)
+	# print(lambdas)
+	# print(v)
+	# print(v[:,:2].shape)
+	# quit()
+	return v[:,:2].dot(np.sqrt(np.diag(lambdas[:2])))
 
-d1 = word_frequency(string1)
-d1_again = word_frequency(string1)
-d2 = word_frequency(string2)
-d3 = word_frequency(string3)
+real_D = pairwise_distances(strings)
+points = mds(real_D)
 
-#print('stat',d1==d1_again,d1['and'],d1['the'],d1['rely'],d1['least'],d1['something'],d1['us'],d1['expression'])
+a = np.zeros((3,3))
+for i in range(1,3):
+	for j in range(i):
+		a[i][j] = np.linalg.norm(points[i]-points[j])
+fake_D = a+a.T
 
-# x = weighted_rank_difference(d1,d2)
-# y = weighted_rank_difference(d1,d2)
-# print('result',y==x,x)
+print(real_D-fake_D)
 
-print('Distance between 1 and 2:',weighted_rank_difference(d1,d2))
-print('Distance between 2 and 3:',weighted_rank_difference(d2,d3))
-print('Distance between 1 and 3:',weighted_rank_difference(d1,d3))
+plt.scatter(points[:,0],points[:,1])
+plt.axes().set_aspect('equal')
+plt.show()

@@ -37,10 +37,7 @@ def weighted_rank_difference(d1,d2):
 	for word in set(d1).intersection(set(d2)):
 		weight[word] = - d1[word]/n1 * (np.log(d1[word])-np.log(n1)) - d2[word]/n2 * (np.log(d2[word])-np.log(n2))
 		Z += weight[word]
-	for word in weight:
-		weight[word] /= Z
-
-	return sum(abs(rank1[word]-rank2[word])*weight[word] for word in weight)
+	return sum(abs(rank1[word]-rank2[word])*weight[word] for word in weight)/Z
 
 '''
 input: word frequency statistic
